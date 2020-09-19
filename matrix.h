@@ -7,24 +7,25 @@
 #include <math.h>
 #include "fraction.h"
 
-struct FracMatrix {
+struct Matrix {
 	int row, column;
 	Fraction **data;
-}typedef(FracMatrix);
+}typedef(Matrix);
 
-FracMatrix *newFracMatrix(int, int);
-void deleteFracMatrix(FracMatrix *);
+Matrix *newMatrix(int, int);
+void deleteMatrix(Matrix *);
 
-void inputFracMatrix(FracMatrix *);
-void printFracMatrix(FracMatrix *);
+void inputMatrix(Matrix *);
+void printMatrix(Matrix *);
 
-void fracSwapRows(FracMatrix *, int, int);
-void fracMulRow(FracMatrix *, int, Fraction);
-void fracAddMulRow(FracMatrix *, int, int, Fraction);
+Matrix *addMatrix(Matrix *, Matrix *);
+Matrix *subMatrix(Matrix *, Matrix *);
+Matrix *kMatrix(Fraction, Matrix *);
+Matrix *mulMatrix(Matrix *, Matrix *);
 
-void fracGaussianElim(FracMatrix *);
-void fracGaussJordanElim(FracMatrix *);
+void swapRows(Matrix *, int, int);
+void mulRow(Matrix *, int, Fraction);
+void addMulRow(Matrix *, int, int, Fraction);
 
-FracMatrix *fracInverse(FracMatrix *);
-
-FracMatrix *FracLUDecomposition(FracMatrix *);
+void gaussianElim(Matrix *);
+void gaussJordanElim(Matrix *);

@@ -1,8 +1,8 @@
-#include "fraclinalg.h"
+#include "matrix.h"
 #include "fraction.h"
 
-FracMatrix *newFracMatrix(int row, int column) {
-	FracMatrix *tempFracMatrix = (FracMatrix *)malloc(sizeof(FracMatrix));
+Matrix *newMatrix(int row, int column) {
+	Matrix *tempMatrix = (Matrix *) malloc(sizeof(Matrix));
 	Fraction **tempData = (Fraction **)malloc(sizeof(Fraction *) * row);
 	int i;
 
@@ -10,21 +10,20 @@ FracMatrix *newFracMatrix(int row, int column) {
 
 	for (i = 1; i < row; i++) tempData[i] = tempData[i - 1] + column;
 
-	tempFracMatrix->row = row;
-	tempFracMatrix->column = column;
-	tempFracMatrix->data = tempData;
+	tempMatrix->row = row;
+	tempMatrix->column = column;
+	tempMatrix->data = tempData;
 
-	return tempFracMatrix;
+	return tempMatrix;
 }
 
-void deleteFracMatrix(FracMatrix *A) {
+void deleteMatrix(Matrix *A) {
 	free(A->data[0]);
 	free(A->data);
 	free(A);
-
 }
 
-void inputFracMatrix(FracMatrix *A) {
+void inputMatrix(Matrix *A) {
 	int i, j, m, n, a;
 
 	m = A->row;
@@ -41,7 +40,7 @@ void inputFracMatrix(FracMatrix *A) {
 	}
 }
 
-void printFracMatrix(FracMatrix *A) {
+void printMatrix(Matrix *A) {
 	int i, j, m, n;
 
 	m = A->row;
@@ -57,7 +56,66 @@ void printFracMatrix(FracMatrix *A) {
 	}
 }
 
-void fracSwapRows(FracMatrix *A, int r1, int r2) {
+Matrix *addMatrix(Matrix *A, Matrix *B) {
+	int i, j;
+	
+	Matrix *C = newMatrix(A->row, A->column);
+
+	for (i = 0; i < A->row; i++) {
+		for (j = 0; j < A->column; j++) {
+			C->data[i][j] = addFraction(A->data[i][j], B->data[i][j]);
+		}
+	}
+
+	return C;
+}
+
+Matrix *subMatrix(Matrix *A, Matrix *B) {
+	int i, j;
+
+	Matrix *C = newMatrix(A->row, A->column);
+
+	for (i = 0; i < A->row; i++) {
+		for (j = 0; j < A->column; j++) {
+			C->data[i][j] = subFraction(A->data[i][j], B->data[i][j]);
+		}
+	}
+
+	return C;
+}
+
+Matrix *kMatrix(Fraction k, Matrix *A) {
+	int i, j;
+
+	Matrix *C = newMatrix(A->row, A->column);
+
+	for (i = 0; i < A->row; i++) {
+		for (j = 0; j < A->column; j++) {
+			C->data[i][j] = mulFraction(k, A->data[i][j]);
+		}
+	}
+
+	return C;
+}
+
+Matrix *mulMatrix(Matrix *A, Matrix *B) {
+	int i, j, k;
+
+	Matrix *C = newMatrix(A->row, B->column);
+
+	for (i = 0; i < A->row; i++) {
+		for (j = 0; j < B->column; j++) {
+			C->data[i][j] = fraction(0, 1);
+			for (k = 0; k < A->column; k++) {
+					C->data[i][j] = addFraction(C->data[i][j], mulFraction(A->data[i][k], B->data[k][j]));
+			}
+		}
+	}
+
+	return C;
+}
+
+void swapRows(Matrix *A, int r1, int r2) {
 	int i;
 	Fraction temp;
 
@@ -68,7 +126,7 @@ void fracSwapRows(FracMatrix *A, int r1, int r2) {
 	}
 }
 
-void fracMulRow(FracMatrix *A, int row, Fraction f) {
+void mulRow(Matrix *A, int row, Fraction f) {
 	int i;
 	
 	for (i = 0; i < A->column; i++) {
@@ -76,7 +134,7 @@ void fracMulRow(FracMatrix *A, int row, Fraction f) {
 	}
 }
 
-void fracAddMulRow(FracMatrix *A, int r1, int r2, Fraction f) {
+void addMulRow(Matrix *A, int r1, int r2, Fraction f) {
 	int i;
 	Fraction f1, f2;
 
@@ -88,7 +146,7 @@ void fracAddMulRow(FracMatrix *A, int r1, int r2, Fraction f) {
 	}
 }
 
-void fracGaussianElim(FracMatrix *A) {
+void gaussianElim(Matrix *A) {
 	int i, m, n;
 	int pivotR = 0, pivotC = 0;
 	int i_notzero;
@@ -107,14 +165,14 @@ void fracGaussianElim(FracMatrix *A) {
 			continue;
 		}
 
-		else if(i_notzero != pivotR) fracSwapRows(A, pivotR, i_notzero);
+		else if(i_notzero != pivotR) swapRows(A, pivotR, i_notzero);
 
 		for (i = pivotR + 1; i < m; i++) {
 			k = divFraction(A->data[i][pivotC], A->data[pivotR][pivotC]);
 
 			k = mulFraction(k, fraction(-1, 1));
 
-			fracAddMulRow(A, i, pivotR, k);
+			addMulRow(A, i, pivotR, k);
 		}
 
 		pivotR++;
@@ -122,14 +180,14 @@ void fracGaussianElim(FracMatrix *A) {
 	}
 }
 
-void fracGaussJordanElim(FracMatrix *A) {
+void gaussJordanElim(Matrix *A) {
 	int i, j, l, m, n;
 	Fraction k;
 
 	m = A->row;
 	n = A->column;
 
-	fracGaussianElim(A);
+	gaussianElim(A);
 
 	for (i = m - 1; i >= 0; i--) {
 		j = 0;
@@ -138,7 +196,7 @@ void fracGaussJordanElim(FracMatrix *A) {
 
 		if (j == n) continue;
 
-		fracMulRow(A, i, reciprocal(A->data[i][j]));
+		mulRow(A, i, reciprocal(A->data[i][j]));
 
 		for (l = 0; l < i; l++) {
 			if (A->data[l][j].numerator) {
@@ -146,16 +204,8 @@ void fracGaussJordanElim(FracMatrix *A) {
 
 				k = mulFraction(k, fraction(-1, 1));
 
-				fracAddMulRow(A, l, i, k);
+				addMulRow(A, l, i, k);
 			}
 		}
 	}
-}
-
-FracMatrix *fracInverse(FracMatrix *A) {
-
-}
-
-FracMatrix *fracLUDecomposition(FracMatrix *A) {
-
 }
