@@ -107,7 +107,11 @@ Matrix *mulMatrix(Matrix *A, Matrix *B) {
 		for (j = 0; j < B->column; j++) {
 			C->data[i][j] = fraction(0, 1);
 			for (k = 0; k < A->column; k++) {
-					C->data[i][j] = addFraction(C->data[i][j], mulFraction(A->data[i][k], B->data[k][j]));
+				C->data[i][j] = 
+					addFraction(
+						C->data[i][j], 
+						mulFraction(A->data[i][k], B->data[k][j])
+					);
 			}
 		}
 	}
