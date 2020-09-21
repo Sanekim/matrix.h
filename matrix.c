@@ -162,17 +162,20 @@ void gaussianElim(Matrix *A) {
 	while (pivotR < m && pivotC < n) {
 		i_notzero = pivotR;
 
-		while (i_notzero < m && toDouble(A->data[i_notzero][pivotC]) == 0) i_notzero++;
+		while (i_notzero < m && toDouble(A->data[i_notzero][pivotC]) == 0) 
+			i_notzero++;
 
 		if (i_notzero == m) {
 			pivotC++;
 			continue;
 		}
 
-		else if(i_notzero != pivotR) swapRows(A, pivotR, i_notzero);
+		else if(i_notzero != pivotR) 
+			swapRows(A, pivotR, i_notzero);
 
 		for (i = pivotR + 1; i < m; i++) {
-			k = divFraction(A->data[i][pivotC], A->data[pivotR][pivotC]);
+			k = divFraction(A->data[i][pivotC], 
+					A->data[pivotR][pivotC]);
 
 			k = mulFraction(k, fraction(-1, 1));
 
